@@ -1,7 +1,7 @@
 # ME701 - Homework 5
 
 Note, any time you see something like $x$, it's LaTeX.  If you want to
-render it nicely, you can 
+render it nicely, you can paste it (here)[https://stackedit.io/app#].
 
 ## Problem 1 - `str` and file processing - 2 points
 
