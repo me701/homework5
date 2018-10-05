@@ -1,6 +1,9 @@
 # ME701 - Homework 5
 
-## Problem 1 - `str` and file processing - 1 point
+Note, any time you see something like $x$, it's LaTeX.  If you want to
+render it nicely, you can 
+
+## Problem 1 - `str` and file processing - 2 points
 
 Use only `str` functions to read `pwr.log` and produce two arrays, one
 for `kinf` and one for `burnup`.  Note, these correspond to the second
@@ -74,7 +77,59 @@ plt.plot(irradiation['times'], irradiation['co-58'])
 and so on.
 
 
-## Problem 3 - 
+## Problem 3 - 2 points
+
+
+We are interested in examining how a time dependent problem changes with a 
+parameter.  We shall investigate the time dependent heat transfer equation 
+in 1-D, i.e.,
+
+$$
+    \frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial x^2}\, ,
+$$
+
+with the boundary conditions that the $T(x=0)=1$ for all time $t$ and 
+that $T(x=1) = 0$ for all time $t$.  We know that after an infinite 
+amount of time, the solution is linear in $x$, but how do the solutions 
+vary for a fixed time.  Here's a short program for doing that:
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+alpha = 1
+
+def getTemp(alpha, L=1, tMax=0.1):
+    dt = 0.00005
+    dx = 0.01
+    Nx = int(L / dx)
+    dx = L / Nx
+    Nt = int(tMax / dt)
+    dt = tMax / Nt
+
+    dx = L / Nx
+    dt = tMax / Nt
+
+    assert dt * alpha / dx ** 2 <= 0.5, 'Parameters are not numerically stable'
+
+    temp = np.zeros(Nx)
+    temp[0] = 1
+
+    for i in range(Nt):
+        temp[1:-1] += dt * alpha / dx ** 2 * (temp[0:-2] - 2 * temp[1:-1] + temp[2:])
+    return temp, np.linspace(0, L, Nx)
+    
+T, x = getTemp(alpha)
+plt.plot(x, T)
+plt.show()
+```
+
+Your task is to produce an animation showing how the solution changes 
+with increasing `alpha`.  Explore the parameter range $\alpha\in[0,1]$. \\
+ 
+
+
+## Problem 4 - 1 bonus point
 
 Consider the following contour plot (from D.S.~McGregor et al. *NIM A* **343** (1994)):
 
