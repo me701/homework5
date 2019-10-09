@@ -1,201 +1,241 @@
-# ME701 - Homework 5
+# ME 701 - Homework 5
 
-Note, any time you see something like $x$, it's LaTeX.  If you want to
-render it nicely, you can paste it (here)[https://stackedit.io/app#].
+This homework focuses on the development of a
+simple 2-D constructive solid geometry module.  I have provided you
+with templates for many of classes you need to define.  The following
+problems provide software specifications for pieces of your 
+module, starting from points, and building on up through a 
+whole geometry made of regions. 
 
-## Problem 1 - `str` and file processing - 2 points
+To help you in your development,
+I've also provide a small unit test framework.
+The various **unit tests demonstrate how your classes and methods
+should work** for a few cases.  The tests I provide may not provide
+complete *coverage*, i.e., they might not test every method
+for every possible use consistent with the specifications below.
+You should feel free to modify these tests and add your own.
+Such testing is extremely helpful for all but the smallest programming
+tasks, as it (1) formalizes the normal testing you would do in a (probably) much
+sloppier way and (2) lives on as a set of (hopefully) easily understood
+examples for how your code works.  Invaluable for the coder with 
+the memory of a (dying) goldfish.
 
-Use only `str` functions to read `pwr.log` and produce two arrays, one
-for `kinf` and one for `burnup`.  Note, these correspond to the second
-and third full columns, i.e., `burnup = [0, 0.1, 0.5, ...]` and
-`kinf = [1.27354, 1.23449, ...]` in the following:
+## Problem 1
 
-```
-                                             ****** *******
-   NO VOID    TFU    TMO    TCO    BOR ROD   BURNUP   K-INF   K-INF     M2     PIN   U-235 FISS PU  TOT PU
-                                             MWD/KG             TWO-GROUP     PEAK    WT %    WT %    WT %
-    1  0.0  900.0  565.0  580.0  900.0        0.000 1.27354 1.27149  62.18   1.059   4.000   0.000   0.000  
-    2                                         0.100 1.23449 1.23311  61.64   1.060   3.988   0.002   0.002  
-    3                                         0.500 1.22571 1.22445  61.51   1.060   3.941   0.022   0.022  
-    4                                         1.000 1.21976 1.21858  61.41   1.060   3.882   0.049   0.050  
-```
-
-## Problem 2 - `re` and processing harder files - 2 points
-
-Consider `dose.out`, which has entries of the following two forms:
-
-```                                       
-               charge    1E-02 d   3E-02 d   4E-02 d   5E-02 d
-      h  1   0.000E+00 2.591E-11 5.182E-11 7.772E-11 1.036E-10
-      h  2   0.000E+00 1.036E-14 2.071E-14 3.107E-14 4.143E-14
-      h  3   0.000E+00 7.084E-17 1.417E-16 2.125E-16 2.834E-16
-```
-
-and 
+We started off our discussion of object-oriented programming
+using the `Point` class as an example.  In essence, a 
+`Point` represents a point in 2-D (or 3-D) space (or, equivalently,
+a 2-D vector starting from the origin).  In some applications,
+it would be helpful to add two points (a translation), or to 
+multiply a point by some constant (a scaling), e.g.,
 
 ```
-               charge  discharge     1.1 d     2.1 d     3.1 d     4.1 d     5.1 d
-     ti 44   0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00
-     ti 45   0.000E+00 5.436E-24 1.865E-26 8.414E-29 3.796E-31 0.000E+00 0.000E+00
-     ti 46   0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00
-     ti 47   0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00 0.000E+00
+>>> p1 = Point(1, 2)
+>>> p2 = Point(2, 3)
+>>> p3 = p1 + p3
+>>> print p3
+Point(x=3.000000, y=5.000000)
+>>> p4 = p1 * 2
+>>> print p4
+Point(x=2.000000, y=4.000000)
 ```
 
-The first indicates the concentration of various nuclides (e.g., H-1) in 
-a target specimen being irradiated inside a nuclear reactor at power as a 
-function of time.  The second set of data represents those same 
-concentrations (in a different unit) as a function of 
-time after the reactor is shut down.  
 
-Your job is to use `re` to read the concentrations of *all* nuclides for 
-each stage.  Specifically, you should end up with two dictionaries:
+**Deliverables**: modify the basic `Point` class to handle (1) addition of
+two points and (2) scaling of a point by a scalar value.
 
-```
-irradiation = {'times': [0, 1e-2, 3e-2, 4e-2, 5e-2],
-'h-1': [0, 2.591e-11, ...],
-'h-2': [...],
-...
-}
-```
+## Problem 3 -- Kids Love Shapes
 
-and 
-
-```
-decay = {'times': [0, 1.1, 2.1, ...],
-'ti-44': [0.0, 0.0, ...]
-...
-}
-```
-
-Note how the nuclides are reformatted to have no space.  Lists are fine
-for the numbers.  In the end, I should be able to plot like
-
-```
-plt.plot(irradiation['times'], irradiation['co-58'])
-```
-
-and so on.
+The template code provides partial definitions for 
+the abstract `Surface` and concrete `QuadraticSurface` classes.  Your
+first task is to implement the `f` and `intersections`
+methods of `QuadraticSurface`.
 
 
-## Problem 3 - 2 points
+Although you can define any 2-D quadratic surface with the approach
+outlined in the notes, it is easier to specialize that
+class further for common cases.  Your job is to 
+create the following classes that inherit from `QuadraticSurface`:
+
+ - `class PlaneV` defines a vertical plane at $x=a$ via`v = PlaneV(a)`
+ - `class PlaneH` defines a horizontal plane at $y=b$ via `h = PlaneH(b)`
+ - `class Plane` defines a plane of the form $y = mx + b$ via `p = Plane(m, b)`.
+ - `class Circle` defines a circle of radius $r$ and center $(a, b)$ 
+    via {\tt c = Circle(r, a, b)}.
 
 
-We are interested in examining how a time dependent problem changes with a 
-parameter.  We shall investigate the time dependent heat transfer equation 
-in 1-D, i.e.,
+You could also specialize the methods `intersections`
+and `f`, but your implementation of these methods in 
+`QuadraticSurface` should work for *any* surface 
+with the generic form given in the notes, i.e., 
+$f(x, y) = Ax^2 + By^2 + Cxy + Dx + Ey + F$.
 
-$$
-    \frac{\partial T}{\partial t} = \alpha \frac{\partial^2 T}{\partial x^2}\, ,
-$$
+**Deliverables**:
 
-with the boundary conditions that the $T(x=0)=1$ for all time $t$ and 
-that $T(x=1) = 0$ for all time $t$.  We know that after an infinite 
-amount of time, the solution is linear in $x$, but how do the solutions 
-vary for a fixed time.  Here's a short program for doing that:
+ - Implement `QuadraticSurface.f(p)`
+ - Implement `QuadraticSurface.intersections(r)`
+ - Implement `PlaneV`
+ - Implement `PlaneH`
+ - Implement `Plane`
+ - Implement `Circle`
+
+
+## Problem 3
+
+The template code includes definitions for 
+an abstract `Node` class, from which 
+the `Primitive` and `Operator` classes 
+are derived.  Recall that an abstract class 
+is one that defines a method signature but 
+does not provide an implementation.  In 
+C-speak, it's like having a function declaration
+in a header without its definition in
+the source file.  A `concrete` class inherits
+from a `base` class and provides an 
+implementation of the methods.
+
+
+The `Primitive` class is a concrete class that represents
+terminal node, i.e., a surface.  On the other hand,
+the  `Operator` class represents a generic combination
+of two nodes.  Like `Node`,  `Operator` is an abstract
+class because its `contains` method is 
+not (and should not) be implemented.  Its other 
+method `intersections` is defined.  Look carefully at how
+it combines intersections with its `L` and `R` nodes.
+
+In addition,  you should create the following two specializations
+of the `Operator` class:
+
+   - `class Union`, whose method `contains(p)`
+      should return `True` if the point is in either 
+      its left or right nodes.
+   - `class Intersection`, whose `contains(p)`
+      should return `True` if the point is in both 
+      its left and right nodes.
+
+**Deliverables**:
+
+  - Implement `Operator.intersections(r)`
+  - Define `class Union` and implement `Union.contains(p)`
+  - Define `class Intersection` and implement `Intersection.contains(p)`
+
+
+## Problem 4 -- Regions and Geometry
+
+Now you have surfaces and nodes with which to 
+implement a `Region` class.  I've proposed the 
+following definition:
 
 ```python
-import numpy as np
-import matplotlib.pyplot as plt
-
-alpha = 1
-
-def getTemp(alpha, L=1, tMax=0.1):
-    dt = 0.00005
-    dx = 0.01
-    Nx = int(L / dx)
-    dx = L / Nx
-    Nt = int(tMax / dt)
-    dt = tMax / Nt
-
-    dx = L / Nx
-    dt = tMax / Nt
-
-    assert dt * alpha / dx ** 2 <= 0.5, 'Parameters are not numerically stable'
-
-    temp = np.zeros(Nx)
-    temp[0] = 1
-
-    for i in range(Nt):
-        temp[1:-1] += dt * alpha / dx ** 2 * (temp[0:-2] - 2 * temp[1:-1] + temp[2:])
-    return temp, np.linspace(0, L, Nx)
+class Region:
     
-T, x = getTemp(alpha)
-plt.plot(x, T)
-plt.show()
+    def __init__(self) :
+        self.node = None
+
+    def append(self, node=None, surface=None, operation="U", sense=False) :
+        assert((node and not surface) or (surface and not node))
+        assert(operation in ["U", "I"])
+        if isinstance(surface, Surface) :
+            node = Primitive(surface, sense)
+        if self.node is None :
+            self.node = node
+        else :
+            O = Union if operation == "U" else Intersection
+            self.node = O(self.node, node)
+
+    def contains(self, p) :
+        pass 
+     
+    def intersections(self, r) :
+        pass
 ```
 
-Your task is to produce an animation showing how the solution changes 
-with increasing `alpha`.  Explore the parameter range $\alpha\in[0,1]$. \\
- 
+Study the `append` method because it represents
+how we put all the surfaces and nodes together.  The 
+key point is that `Region` has an attribute 
+`node` that represents at all times the top of 
+the tree of nodes and surfaces.  You should add 
+an appropriate docstring to explain what the method
+is doing, what the assertions are doing, etc.  In 
+other words, make it obvious that you know what
+I'm doing.  (This might seem like a silly exercise,
+but the ability to digest and then add to code
+that someone else wrote is a good way to improve
+your own programming.) 
+
+Once you've done that, you need to implement the 
+`contains` and `intersections` methods.
+In particular, the points returned by the latter
+should satisfy the following:
 
 
-## Problem 4 - 1 bonus point
+ - They are unique (a ray might intersect more than one surface that 
+   defines a region, e.g,
+   if the ray is along the $x$-axis and the 
+   region is bounded by the planes $y = \pm x$,
+   then the point $(0, 0)$ could be included
+   twice.)
+ - They include points only along forward of
+   the ray origin. For example, if a region
+   is bounded by the unit circle centered
+   at the origin, then a ray centered at the 
+   origin in the positive $x$ direction 
+   would intersect the region at  $(1,0)$
+   but not $(-1, 0)$.
+ - They are ordered by increasing distance
+   from the ray's origin, i.e., the first 
+   point is the first one encountered by
+   the ray.
 
-Consider the following contour plot (from D.S.~McGregor et al. *NIM A* **343** (1994)):
 
 
-![original contour](./original_contour.png)
-
-
-In class, I proposed the following solution (also available in the 
-examples repository):
+Finally, consider the following `Geometry`:
 
 ```python
-import numpy as np
-import matplotlib.pyplot as plt
+class Geometry:
+    noregion = -1
 
-plt.ioff()
-exp = np.exp 
+    def __init__(self,  xmin, xmax, ymin, ymax) :
+        self.xmin, self.xmax = xmin, xmax
+        self.ymin, self.ymax = ymin, ymax
+        self.regions = []
+        
+    def add_region(self, r) :
+        self.regions.append(r)
 
-def Q(rho_e, rho_h) :
-    return rho_e + rho_e**2*(exp(-1.0/rho_e)-1.0) + \
-           rho_h + rho_h**2*(exp(-1.0/rho_h)-1.0)
-    
-def sig_Q(rho_e, rho_h) :
-    a = rho_e**2 + 2.*rho_e**3*(exp(-1.0/rho_e)-1) + \
-        0.5*rho_e**3*(1-exp(-2.0/rho_e))
-    b = rho_h**2 + 2.*rho_h**3*(exp(-1.0/rho_h)-1) + \
-        0.5*rho_h**3*(1-exp(-2.0/rho_h))
-    c = 2.*rho_e*rho_h + 2.*rho_e**2*rho_h*(exp(-1.0/rho_e)-1) + \
-        2.*rho_h**2*rho_e*(exp(-1.0/rho_h)-1)
-    d = 2.*(rho_e*rho_h)**2/(rho_e-rho_h)*(exp(-1.0/rho_e)-exp(-1.0/rho_h))
-    return np.sqrt( a+b+c+d-Q(rho_e,rho_h)**2)
-   
-def R(rho_e, rho_h) :
-    return 100*sig_Q(rho_e, rho_h)/Q(rho_e, rho_h)
-    
-n = 100
-H = np.logspace(-2, 2, n)
-E = np.logspace(-2, 2, n) 
+    def find_region(self, p) :
+        """ Find the region that contains the point.  If none 
+        is found, return Geometry.noregion.
+         
+        Arguments:
+            p : Point
+        Returns:
+            i : int
+        """
+        pass
 
-H, E = np.meshgrid(H, E, sparse=False, indexing='ij')
-res = R(E, H)
-
-plt.figure(1, figsize=(8,8))
-plt.contour(np.log10(E),np.log10(H), res, colors='k')
-plt.savefig('new_contour.png')
+    def plot(self, xmin, xmax, nx, ymin, ymax, ny) :
+        # see the template file; discussion to follow
+        pass
 ```
 
-The resulting `new_contour.png` is on the right track, but several 
-features are missing.  Your job is to add the following:
+Its construction requires a bounding box defined 
+by minimum and maximum values for $x$ and $y$, i.e.,
+the square domain in which the geometry is confined.
+Regions are stored in an initially empty list.  Regions
+are added by the `add_region` method.  Your job
+is to implement the `find_region` method, which 
+returns the index (in the list) of the region that
+contains the point.  If no region contains the point,
+or if the point lives outside the bounding box, return
+`Geometry.noregion`. 
 
-  1. **appropriate axis labels**, e.g., 'Electron Extraction Factor'.
-  2. **correct contour levels**, i.e., 0.1, 0.2, 0.5, 1%, and so on.
-     *Hint*: look up the documentation for `plt.contour`.
-  3. **correct $x$  and $y$ tick values** (e.g., -1 should be 0.1 and 2
-       should be 100)  *Hint*: look up, e.g., `plt.xticks`.
-  4. **annotations for each contour line**. *Hint*: look up 
-       `plt.text`, paying specific attention to `fontsize`,
-       `horizontalalignment`, and `verticalalignment`. 
-       You might also which to consider using `scipy.optimize.newton`
-       to help you automatically find where text should be located,
-       e.g., you know that the upper-left 40% box should be located where 
-       $F(x) = 100 - R(\rho_e, 100) = 0$.  However, you may simply
-       place each text annotation manually. 
-  5. **logarithmic minor tick marks**.   Note the 
-       original has minor tick marks spaced logarithmically, whereas
-       my solution has no minor tick marks.  *Hint*: look 
-       up `plt.gca().yaxis`.
+**Deliverables**
 
+  Document `Region.append`
+  Implement `Region.contains`
+  Implement `Region.intersections`
+  Implement `Geometry.find_region`
 
 
