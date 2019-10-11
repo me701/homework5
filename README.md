@@ -236,6 +236,6 @@ or if the point lives outside the bounding box, return
   Document `Region.append`
   Implement `Region.contains`
   Implement `Region.intersections`
-  Implement `Geometry.find_region`
+  Implement `Geometry.find_region` (can you use this to produce the plot?)
 
 
